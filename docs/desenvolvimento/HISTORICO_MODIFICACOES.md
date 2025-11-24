@@ -409,7 +409,7 @@ jobs:
 - ✅ Workflows originais mantidos para referência
 - ✅ Compatibilidade mantida caso queiramos contribuir upstream
 
-**Commit:** Ver histórico com `git log --oneline` - "chore: desabilitar workflows de publicação Docker (fork)"
+**Commit:** `c3268651f` - "chore: desabilitar workflows de publicação Docker (fork)"
 
 ### Lições Aprendidas
 
@@ -422,7 +422,7 @@ jobs:
 
 ## 🔄 Próximos Passos
 
-- [ ] Implementar Opção 1 para desabilitar workflows do GitHub Actions
+- [x] Implementar Opção 1 para desabilitar workflows do GitHub Actions ✅
 - [ ] Documentar outras customizações conforme forem feitas
 - [ ] Manter este histórico atualizado
 
