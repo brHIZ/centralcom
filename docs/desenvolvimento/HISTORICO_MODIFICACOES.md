@@ -273,9 +273,135 @@ Aumentar o tamanho do logo na página de login de `h-8` (32px) para um tamanho m
 
 ---
 
+## 3. Erros do GitHub Actions
+
+**Data:** Janeiro 2025  
+**Status:** ⚠️ Identificado (não crítico, pendente de correção)
+
+### Objetivo
+Entender e resolver erros do GitHub Actions que aparecem após push para `develop` ou `main`.
+
+### Problema
+
+Após push para `develop` ou `main`, aparecem erros no GitHub Actions:
+
+- ❌ `Publish Chatwoot CE docker images / build (linux/amd64)` - **Failing**
+- ❌ `Publish Chatwoot CE docker images / build (linux/arm64)` - **Failing**
+- ❌ `Publish Chatwoot EE docker images / build (linux/amd64)` - **Failing**
+- ❌ `Publish Chatwoot EE docker images / build (linux/arm64)` - **Failing**
+
+**Erro específico:** `Error: Username and password required` no step "Login to DockerHub"
+
+### Análise
+
+#### 3.1. Onde está configurado?
+
+Os workflows estão em:
+- `.github/workflows/publish_foss_docker.yml` - Publica imagem CE (Community Edition)
+- `.github/workflows/publish_ee_docker.yml` - Publica imagem EE (Enterprise Edition)
+
+**Linha problemática (linha 67-72):**
+```yaml
+- name: Login to DockerHub
+  uses: docker/login-action@v3
+  with:
+    username: ${{ secrets.DOCKERHUB_USERNAME }}  # ← Secret não configurado
+    password: ${{ secrets.DOCKERHUB_TOKEN }}      # ← Secret não configurado
+```
+
+**Quando são ativados (linha 9-16):**
+```yaml
+on:
+  push:
+    branches:
+      - develop    # ← Ativado quando fazemos push
+      - master     # ← Ativado quando fazemos push
+```
+
+#### 3.2. Por que estão falhando?
+
+**Causa Raiz:**
+1. **Secrets não configurados:**
+   - Workflows tentam fazer login no DockerHub usando `secrets.DOCKERHUB_USERNAME` e `secrets.DOCKERHUB_TOKEN`
+   - Esses secrets não estão configurados no nosso fork
+   - Sem credenciais, o workflow falha com erro: `Error: Username and password required`
+
+2. **Não precisamos desses workflows:**
+   - Usamos nosso próprio `Dockerfile.centralcom`
+   - Não publicamos imagens no DockerHub oficial do Chatwoot
+   - Esses workflows são do repositório upstream (Chatwoot original)
+   - Nossa imagem é construída localmente ou em outro CI/CD
+   - Publicar no DockerHub oficial não faz sentido (seria com nome errado: `chatwoot/chatwoot`)
+
+3. **Workflows são ativados automaticamente:**
+   - Configurados para rodar em push para `develop` e `master`
+   - Como fazemos push para essas branches, os workflows são acionados automaticamente
+
+### Soluções Possíveis
+
+#### Opção 1: Desabilitar Workflows (Recomendado) ⭐
+
+**Ação:** Adicionar condição `if: github.repository == 'chatwoot/chatwoot'` no início do job
+
+**Como fazer:**
+1. Editar `.github/workflows/publish_foss_docker.yml` e `.github/workflows/publish_ee_docker.yml`
+2. Adicionar `if: github.repository == 'chatwoot/chatwoot'` no job `build`
+3. Commit e push
+
+**Prós:**
+- ✅ Mantém workflows originais para referência
+- ✅ Remove erros do GitHub Actions
+- ✅ Workflows aparecem como "skipped" (não como erro)
+- ✅ Não quebra nada se quisermos contribuir upstream
+
+**Contras:**
+- ⚠️ Workflows ainda aparecem (mas como "skipped", não "failing")
+
+#### Opção 2: Remover Workflows
+
+**Ação:** Deletar arquivos `.github/workflows/publish_*.yml`
+
+**Prós:**
+- ✅ Remove erros completamente
+- ✅ Limpa interface do GitHub
+
+**Contras:**
+- ❌ Perde referência dos workflows originais
+- ❌ Se quisermos contribuir upstream, precisamos restaurar
+
+#### Opção 3: Configurar Secrets (NÃO Recomendado)
+
+**Ação:** Configurar secrets do DockerHub no fork
+
+**Contras:**
+- ❌ Não precisamos publicar imagens
+- ❌ Expor credenciais desnecessariamente
+- ❌ Custo de build no GitHub Actions
+- ❌ Publicaria imagens com nome errado
+
+### Decisão
+
+**Status:** ⚠️ **Pendente de implementação**
+
+**Recomendação:** Implementar Opção 1 (desabilitar workflows com condição) quando houver tempo.
+
+**Por enquanto:**
+- Os erros não afetam o funcionamento do sistema
+- Podemos ignorar ou desabilitar conforme preferência
+- Documentado em `GUIA_GITHUB.md` seção "GitHub Actions"
+
+### Lições Aprendidas
+
+- ✅ Workflows do upstream são ativados automaticamente em forks
+- ✅ Secrets do GitHub Actions não são herdados do repositório original
+- ✅ Não precisamos de todos os workflows do upstream
+- ✅ Podemos desabilitar workflows sem removê-los (usando condição `if`)
+
+---
+
 ## 🔄 Próximos Passos
 
-- [ ] Decidir sobre workflows do GitHub Actions
+- [ ] Implementar Opção 1 para desabilitar workflows do GitHub Actions
 - [ ] Documentar outras customizações conforme forem feitas
 - [ ] Manter este histórico atualizado
 
