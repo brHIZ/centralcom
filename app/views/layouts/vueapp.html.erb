@@ -66,6 +66,26 @@
     <% end %>
     <%= vite_client_tag %>
     <%= vite_javascript_tag @application_pack %>
+    <!-- CSS customizado para aumentar tamanho do logo na página de login -->
+    <style>
+      /* Sobrescrever tamanho do logo na página de login do v3 */
+      /* Seletor específico para a seção do logo na página de login */
+      main section.max-w-5xl img[src*="logo"],
+      main section.max-w-5xl img[alt*="CentralCom"],
+      main section.max-w-5xl img[alt*="teste-centralcom"],
+      main section.max-w-5xl img[alt*="hiz-server"] {
+        height: 6rem !important; /* 96px - equivalente a h-24 do Tailwind */
+        width: auto !important;
+        max-width: none !important;
+      }
+      /* Fallback mais genérico para garantir que funcione */
+      body main img[src*="brand-assets"],
+      body main img[src*="logo.svg"],
+      body main img[src*="logo_dark.svg"] {
+        height: 6rem !important;
+        width: auto !important;
+      }
+    </style>
   </head>
   <body class="text-slate-600">
     <div id="app"></div>

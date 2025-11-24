@@ -31,8 +31,9 @@ COPY ./public/ms-icon-*.png /app/public/
 COPY ./config/installation_config.yml /app/config/installation_config.yml
 COPY ./app/views/layouts/vueapp.html.erb /app/app/views/layouts/vueapp.html.erb
 
-# Nota: Não é necessário recompilar assets pois estamos apenas copiando arquivos estáticos
-# Os logos e favicons são servidos diretamente do /public
+# NOTA: Não é necessário recompilar assets pois estamos usando CSS inline no layout
+# para sobrescrever o tamanho do logo. Isso evita problemas de memória durante o build.
+# Se no futuro precisar modificar os arquivos Vue, será necessário recompilar os assets.
 
 # Manter o mesmo entrypoint original
 # O entrypoint já está configurado na imagem base
