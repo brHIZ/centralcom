@@ -718,36 +718,45 @@ Antes de fazer commit, sempre verificar:
 ## 🔄 Workflow Resumido
 
 ```bash
-# 1. Verificar branch
+# 1. Ir para o diretório do repositório
+cd /root/repos/centralcom
+
+# 2. Verificar branch
 git branch
 
-# 2. Se não estiver em develop, mudar
+# 3. Se não estiver em develop, mudar
 git checkout develop
 
-# 3. Atualizar
+# 4. Atualizar
 git pull origin develop
 
-# 4. Fazer modificações...
+# 5. Fazer modificações...
 
-# 5. Adicionar arquivos
+# 6. Adicionar arquivos
 git add .
 
-# 6. Ver o que será commitado
+# 7. Ver o que será commitado
 git status
 
-# 7. Fazer commit
+# 8. Fazer commit
 git commit -m "tipo: descrição"
 
-# 8. Push
+# 9. Push
 git push origin develop
 
-# 9. Após validação, merge para main
+# 10. Após validação, merge para main
 git checkout main
 git pull origin main
 git merge develop
 git push origin main
 git checkout develop
 ```
+
+**📁 Estrutura:**
+- **Repositório:** `/root/repos/centralcom/` (recomendado para escalabilidade)
+- **Remotes:** `origin` (seu GitHub) e `upstream` (Chatwoot original)
+- **Branches:** `develop` (desenvolvimento) e `main` (produção)
+- **❌ Não criar:** `/root/repos/chatwoot-oficial/` - não é necessário
 
 ---
 
