@@ -239,6 +239,7 @@ git commit -m "merge: resolver conflitos"
 ### Verificar Branch Atual
 
 ```bash
+# Estrutura recomendada: /root/repos/centralcom/
 cd /root/repos/centralcom
 git branch
 ```
@@ -432,7 +433,7 @@ git push origin develop
 
 ### Precisa de um Clone Local Separado?
 
-**Resposta curta: Não é necessário.**
+**Resposta curta: ❌ Não é necessário.**
 
 O remote `upstream` já permite:
 - ✅ Buscar atualizações (`git fetch upstream`)
@@ -440,12 +441,32 @@ O remote `upstream` já permite:
 - ✅ Ver commits (`git log upstream/develop`)
 - ✅ Copiar arquivos (`git checkout upstream/develop -- arquivo`)
 
-**Quando considerar um clone local:**
+**Estrutura recomendada:**
+```
+/root/repos/
+└── centralcom/          # Apenas seu fork customizado
+    ├── .git/
+    │   ├── remotes:
+    │   │   ├── origin → seu GitHub
+    │   │   └── upstream → Chatwoot original
+    └── ...
+```
+
+**❌ Não criar:**
+- `/root/repos/chatwoot-oficial/` - **NÃO é necessário**
+- `/root/centralcom/` - Use `/root/repos/centralcom/` para manter organização
+
+**📁 Por que `/root/repos/`?**
+- ✅ Escalabilidade: Facilita adicionar outros repositórios GitHub no futuro
+- ✅ Organização: Mantém todos os repositórios em um local centralizado
+- ✅ Consistência: Padrão comum em servidores de desenvolvimento
+
+**Quando considerar um clone local (raro):**
 - Se você precisa comparar arquivos visualmente com frequência
 - Se você quer ter uma versão "limpa" sempre disponível para referência
 - Se você trabalha offline frequentemente
 
-**Se decidir criar um clone local:**
+**⚠️ Se decidir criar (não recomendado):**
 ```bash
 # Criar clone do Chatwoot original em /root/repos/chatwoot-oficial
 cd /root/repos
@@ -458,6 +479,7 @@ git checkout develop  # ou a versão que você usa
 - O clone ocupará ~362MB de espaço em disco
 - Precisa ser atualizado manualmente (`git pull` no clone)
 - O remote `upstream` já fornece a maioria das funcionalidades
+- **Recomendação:** Não criar, usar apenas o remote `upstream`
 
 ---
 
