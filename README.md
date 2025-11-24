@@ -3,6 +3,24 @@
 
 ___
 
+# CentralCom - Fork Customizado do Chatwoot
+
+> **Fork customizado do Chatwoot para CentralCom**  
+> Baseado em Chatwoot v4.1.0 com customizações de branding e funcionalidades específicas.
+
+## 📚 Documentação de Desenvolvimento
+
+Este fork possui documentação completa sobre customizações e desenvolvimento:
+
+- **[`docs/desenvolvimento/`](./docs/desenvolvimento/)** - Documentação técnica completa
+  - [`HISTORICO_MODIFICACOES.md`](./docs/desenvolvimento/HISTORICO_MODIFICACOES.md) - Histórico detalhado de todas as modificações
+  - [`GUIA_ESTRUTURA_CODIGO.md`](./docs/desenvolvimento/GUIA_ESTRUTURA_CODIGO.md) - Guia de referência sobre estrutura do código
+  - [`GUIA_GITHUB.md`](./docs/desenvolvimento/GUIA_GITHUB.md) - Guia completo de Git/GitHub (branches, commits, merges)
+- **[`ESPECIFICACOES_LOGO_FAVICON.md`](./ESPECIFICACOES_LOGO_FAVICON.md)** - Especificações técnicas de logos e favicons
+- **[`Dockerfile.centralcom`](./Dockerfile.centralcom)** - Dockerfile customizado para build da imagem
+
+---
+
 # Chatwoot
 
 The modern customer support platform, an open-source alternative to Intercom, Zendesk, Salesforce Service Cloud etc.

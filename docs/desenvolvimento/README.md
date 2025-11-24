@@ -36,17 +36,21 @@ Esta pasta contém documentação técnica sobre o desenvolvimento e customizaç
 
 ---
 
-### 3. [`ERROS_GITHUB_ACTIONS.md`](./ERROS_GITHUB_ACTIONS.md)
-**Explicação dos erros do GitHub Actions**
+### 3. [`GUIA_GITHUB.md`](./GUIA_GITHUB.md)
+**Guia completo de Git e GitHub**
 
-- Por que os workflows estão falhando
-- Soluções possíveis
-- Como implementar correções
+- Como trabalhar com branches (develop/main)
+- Como fazer commits, merges, push/pull corretamente
+- Como saber se está na versão correta
+- Como navegar entre versões
+- Problemas comuns e soluções
+- Erros do GitHub Actions e como resolver
 
 **Use quando:**
-- Ver erros no GitHub Actions após push
-- Quiser entender workflows do Chatwoot
-- Precisar desabilitar workflows desnecessários
+- Estiver confuso sobre qual branch usar
+- Não souber como fazer commit/merge/push
+- Precisar verificar se está na versão correta
+- Ver erros no GitHub Actions
 
 ---
 
@@ -85,8 +89,9 @@ Esta pasta contém documentação técnica sobre o desenvolvimento e customizaç
 ## 📝 Outros Documentos Relacionados
 
 - [`ESPECIFICACOES_LOGO_FAVICON.md`](../../ESPECIFICACOES_LOGO_FAVICON.md) - Especificações técnicas de logos e favicons
-- [`VERIFICACAO_ICONES.md`](../../VERIFICACAO_ICONES.md) - Verificação de ícones customizados
 - [`Dockerfile.centralcom`](../../Dockerfile.centralcom) - Dockerfile customizado
+
+**Nota:** O conteúdo de `VERIFICACAO_ICONES.md` foi integrado ao [`HISTORICO_MODIFICACOES.md`](./HISTORICO_MODIFICACOES.md) na seção "Customização de Logo e Favicon".
 
 ---
 

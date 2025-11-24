@@ -181,6 +181,7 @@ public/
   - `logo.svg` - Logo principal (modo claro)
   - `logo_dark.svg` - Logo modo escuro
   - `logo_thumbnail.svg` - Logo miniatura (usado em notificações, etc)
+- **📚 Especificações detalhadas:** Ver [`ESPECIFICACOES_LOGO_FAVICON.md`](../../ESPECIFICACOES_LOGO_FAVICON.md) na raiz do repositório
 
 #### **Favicons**
 - **Localização:** `public/favicon-*.png`

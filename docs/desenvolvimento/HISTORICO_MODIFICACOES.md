@@ -20,7 +20,6 @@ Manter um registro detalhado de todas as customizações, permitindo:
 
 1. [Customização de Logo e Favicon](#1-customização-de-logo-e-favicon)
 2. [Aumento do Tamanho do Logo na Página de Login](#2-aumento-do-tamanho-do-logo-na-página-de-login)
-3. [Erros do GitHub Actions](#3-erros-do-github-actions)
 
 ---
 
@@ -59,10 +58,57 @@ Substituir os logos e favicons padrão do Chatwoot pelos da CentralCom.
   - Configuração `installation_config.yml`
 - **Resultado:** ✅ Deploy bem-sucedido
 
+#### 1.4. Verificação dos Ícones
+**Data:** 2024-11-24  
+**Ação:** Verificação completa de todos os ícones após implementação
+
+**Processo de Verificação:**
+1. **Verificação dos Arquivos no Repositório:**
+   - ✅ Logos SVG: `logo.svg`, `logo_dark.svg`, `logo_thumbnail.svg` presentes
+   - ✅ Favicons PNG: 4 tamanhos (16x16, 32x32, 96x96, 512x512)
+   - ✅ Ícones Apple: 11 arquivos (57x57 até 180x180)
+   - ✅ Ícones Android: 6 arquivos (36x36 até 192x192)
+   - ✅ Ícones Microsoft: 4 arquivos (70x70 até 310x310)
+
+2. **Verificação do Dockerfile:**
+   - ✅ Todos os wildcards funcionando corretamente
+   - ✅ Caminhos de cópia corretos
+   - ✅ Estrutura de diretórios preservada
+
+3. **Teste de Build:**
+   ```bash
+   cd /root/repos/centralcom
+   docker build -f Dockerfile.centralcom -t test-build .
+   ```
+   - ✅ Build concluído com sucesso
+   - ✅ Todos os arquivos copiados corretamente
+
+4. **Verificação na Imagem:**
+   ```bash
+   docker run --rm test-build sh -c 'ls -lh /app/public/brand-assets/*.svg'
+   docker run --rm test-build sh -c 'ls -lh /app/public/favicon-*.png'
+   ```
+   - ✅ Todos os arquivos presentes na imagem
+   - ✅ Formatos corretos (SVG e PNG)
+   - ✅ Tamanhos corretos
+
+**Observações:**
+- `favicon-badge-*.png` vêm da imagem base (usados para notificações)
+- `apple-touch-icon-precomposed.png` está vazio, mas não é crítico (sistema usa fallback)
+
+**Resultado:** ✅ **TODOS OS ÍCONES ESTÃO CORRETOS E FUNCIONANDO**
+
+**Problema Identificado (não relacionado a ícones):**
+- Erro de banco de dados: `ERROR: relation "installation_configs" does not exist`
+- **Solução:** Adicionar `bundle exec rails db:migrate` no script de deploy
+- **Status:** ✅ Resolvido (adicionado no `chatwoot-test.yaml`)
+
 ### Lições Aprendidas
 - ✅ Usar imagem base do Chatwoot é mais eficiente que rebuild completo
 - ✅ Assets estáticos podem ser simplesmente copiados sem recompilação
 - ✅ `installation_config.yml` é o arquivo central para configuração de branding
+- ✅ Wildcards no Dockerfile funcionam perfeitamente para múltiplos arquivos
+- ✅ Verificação após build é essencial para garantir que tudo foi copiado
 
 ---
 
@@ -199,32 +245,6 @@ Aumentar o tamanho do logo na página de login de `h-8` (32px) para um tamanho m
 - **Evitar rebuild pesado:** Se possível, usar sobrescrita CSS
 - **Manter código futuro:** Modificar arquivos Vue mesmo que não recompilemos agora
 
----
-
-## 3. Erros do GitHub Actions
-
-**Data:** Janeiro 2025  
-**Status:** ⚠️ Identificado (não crítico)
-
-### Problema
-Após push para `develop` e `main`, aparecem erros no GitHub Actions:
-- ❌ `Publish Chatwoot CE docker images / build` - Failing
-- ❌ `Publish Chatwoot EE docker images / build` - Failing
-
-### Análise Detalhada
-Ver documento completo: [`ERROS_GITHUB_ACTIONS.md`](./ERROS_GITHUB_ACTIONS.md)
-
-**Resumo:**
-- Workflows do Chatwoot original tentam publicar imagens Docker no DockerHub
-- Secrets não configurados no nosso fork
-- Não precisamos desses workflows (usamos nosso próprio Dockerfile)
-
-### Solução Recomendada
-**Opção 1:** Desabilitar workflows com condição `if: github.repository == 'chatwoot/chatwoot'`
-
-**Status:** ⚠️ **Pendente de implementação**
-
-Por enquanto, os erros não afetam o funcionamento do sistema.
 
 ---
 
