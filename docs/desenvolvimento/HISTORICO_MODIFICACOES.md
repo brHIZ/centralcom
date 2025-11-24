@@ -379,16 +379,37 @@ on:
 - ❌ Custo de build no GitHub Actions
 - ❌ Publicaria imagens com nome errado
 
-### Decisão
+### Decisão e Implementação
 
-**Status:** ⚠️ **Pendente de implementação**
+**Status:** ✅ **Implementado**
 
-**Recomendação:** Implementar Opção 1 (desabilitar workflows com condição) quando houver tempo.
+**Solução escolhida:** Opção 1 - Desabilitar workflows com condição
 
-**Por enquanto:**
-- Os erros não afetam o funcionamento do sistema
-- Podemos ignorar ou desabilitar conforme preferência
-- Documentado em `GUIA_GITHUB.md` seção "GitHub Actions"
+**Implementação:**
+1. Adicionado `if: github.repository == 'chatwoot/chatwoot'` no job `build` de ambos os workflows
+2. Workflows agora são "skipped" em forks ao invés de falhar
+3. Erros desaparecem da interface do GitHub Actions
+
+**Arquivos modificados:**
+- `.github/workflows/publish_foss_docker.yml` (linha 22)
+- `.github/workflows/publish_ee_docker.yml` (linha 22)
+
+**Código adicionado:**
+```yaml
+jobs:
+  build:
+    if: github.repository == 'chatwoot/chatwoot'  # Desabilitar em forks
+    strategy:
+      # ... resto do workflow
+```
+
+**Resultado:**
+- ✅ Workflows aparecem como "skipped" (não como erro)
+- ✅ Erros desaparecem da interface do GitHub
+- ✅ Workflows originais mantidos para referência
+- ✅ Compatibilidade mantida caso queiramos contribuir upstream
+
+**Commit:** Ver histórico com `git log --oneline` - "chore: desabilitar workflows de publicação Docker (fork)"
 
 ### Lições Aprendidas
 
