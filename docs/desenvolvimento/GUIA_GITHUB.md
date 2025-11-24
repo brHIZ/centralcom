@@ -349,6 +349,118 @@ git log HEAD..origin/develop
 
 ---
 
+## 6. Trabalhando com o Repositório Original (Upstream)
+
+### O que é o Remote "Upstream"?
+
+O repositório CentralCom tem um remote chamado `upstream` que aponta para o repositório original do Chatwoot:
+
+```bash
+git remote -v
+# origin    git@github.com:brHIZ/centralcom.git (seu fork)
+# upstream  https://github.com/chatwoot/chatwoot.git (original)
+```
+
+### Buscar Atualizações do Chatwoot Original
+
+```bash
+# Buscar todas as atualizações do upstream
+git fetch upstream
+
+# Buscar atualizações de uma branch específica
+git fetch upstream develop
+
+# Ver commits novos do Chatwoot original
+git log develop..upstream/develop --oneline
+```
+
+### Comparar com o Chatwoot Original
+
+```bash
+# Ver diferenças entre seu fork e o original
+git diff develop..upstream/develop
+
+# Ver apenas arquivos diferentes
+git diff --name-only develop..upstream/develop
+
+# Ver estatísticas de mudanças
+git diff --stat develop..upstream/develop
+```
+
+### Copiar Arquivo do Original
+
+```bash
+# Copiar um arquivo específico do Chatwoot original
+git checkout upstream/develop -- caminho/para/arquivo
+
+# Exemplo: copiar um componente Vue do original
+git checkout upstream/develop -- app/javascript/v3/components/Button/Index.vue
+```
+
+### Ver Logs do Original
+
+```bash
+# Ver commits do Chatwoot original
+git log upstream/develop --oneline -20
+
+# Ver commits de uma branch específica do original
+git log upstream/master --oneline -10
+```
+
+### Atualizar Fork com Mudanças do Original
+
+**⚠️ CUIDADO:** Isso pode sobrescrever suas customizações!
+
+```bash
+# 1. Garantir que está em develop
+git checkout develop
+
+# 2. Buscar atualizações
+git fetch upstream
+
+# 3. Ver o que mudou (IMPORTANTE: revisar antes de fazer merge)
+git log develop..upstream/develop --oneline
+
+# 4. Se quiser mesclar (pode haver conflitos)
+git merge upstream/develop
+
+# 5. Resolver conflitos se houver
+# 6. Testar tudo
+# 7. Push
+git push origin develop
+```
+
+### Precisa de um Clone Local Separado?
+
+**Resposta curta: Não é necessário.**
+
+O remote `upstream` já permite:
+- ✅ Buscar atualizações (`git fetch upstream`)
+- ✅ Comparar código (`git diff develop..upstream/develop`)
+- ✅ Ver commits (`git log upstream/develop`)
+- ✅ Copiar arquivos (`git checkout upstream/develop -- arquivo`)
+
+**Quando considerar um clone local:**
+- Se você precisa comparar arquivos visualmente com frequência
+- Se você quer ter uma versão "limpa" sempre disponível para referência
+- Se você trabalha offline frequentemente
+
+**Se decidir criar um clone local:**
+```bash
+# Criar clone do Chatwoot original em /root/repos/chatwoot-oficial
+cd /root/repos
+git clone https://github.com/chatwoot/chatwoot.git chatwoot-oficial
+cd chatwoot-oficial
+git checkout develop  # ou a versão que você usa
+```
+
+**⚠️ Lembre-se:**
+- O clone ocupará ~362MB de espaço em disco
+- Precisa ser atualizado manualmente (`git pull` no clone)
+- O remote `upstream` já fornece a maioria das funcionalidades
+
+---
+
 ## 6. Problemas Comuns
 
 ### Problema 1: "Estou na branch errada"
