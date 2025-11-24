@@ -722,50 +722,89 @@ git log --oneline -1 develop
 
 ## 7. GitHub Actions
 
-### Erros do GitHub Actions
+### 🚨 Erros do GitHub Actions - Explicação Completa
 
-Após push para `develop` ou `main`, podem aparecer erros no GitHub Actions:
+Após push para `develop` ou `main`, aparecem erros no GitHub Actions:
 
-- ❌ `Publish Chatwoot CE docker images / build` - **Failing**
-- ❌ `Publish Chatwoot EE docker images / build` - **Failing**
+- ❌ `Publish Chatwoot CE docker images / build (linux/amd64)` - **Failing**
+- ❌ `Publish Chatwoot CE docker images / build (linux/arm64)` - **Failing**
+- ❌ `Publish Chatwoot EE docker images / build (linux/amd64)` - **Failing**
+- ❌ `Publish Chatwoot EE docker images / build (linux/arm64)` - **Failing**
+
+**Erro específico:** `Error: Username and password required` no step "Login to DockerHub"
+
+### 📍 Onde Isso Está Configurado?
+
+Os workflows estão em:
+- `.github/workflows/publish_foss_docker.yml` - Publica imagem CE (Community Edition)
+- `.github/workflows/publish_ee_docker.yml` - Publica imagem EE (Enterprise Edition)
+
+**Linha problemática (linha 67-72 em ambos os arquivos):**
+```yaml
+- name: Login to DockerHub
+  if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+  uses: docker/login-action@v3
+  with:
+    username: ${{ secrets.DOCKERHUB_USERNAME }}  # ← Secret não configurado
+    password: ${{ secrets.DOCKERHUB_TOKEN }}      # ← Secret não configurado
+```
+
+**Quando são ativados (linha 9-16):**
+```yaml
+on:
+  push:
+    branches:
+      - develop    # ← Ativado quando você faz push para develop
+      - master     # ← Ativado quando você faz push para master/main
+    tags:
+      - v*
+  workflow_dispatch:
+```
 
 ### Por que estão falhando?
 
 #### 1. **Secrets não configurados**
 
-Os workflows tentam fazer login no DockerHub:
-```yaml
-- name: Login to DockerHub
-  uses: docker/login-action@v3
-  with:
-    username: ${{ secrets.DOCKERHUB_USERNAME }}
-    password: ${{ secrets.DOCKERHUB_TOKEN }}
-```
+Os workflows tentam fazer login no DockerHub usando secrets do GitHub:
+- `secrets.DOCKERHUB_USERNAME` - Usuário do DockerHub
+- `secrets.DOCKERHUB_TOKEN` - Token de acesso do DockerHub
 
 **Problema:**
 - Esses secrets não estão configurados no nosso fork
-- Sem credenciais, o workflow falha
+- O GitHub Actions não consegue fazer login no DockerHub
+- O workflow falha com erro: `Error: Username and password required`
+
+**Onde configurar secrets (se quisesse):**
+1. Ir em: GitHub → Settings → Secrets and variables → Actions
+2. Adicionar `DOCKERHUB_USERNAME` e `DOCKERHUB_TOKEN`
+3. ⚠️ **Mas não precisamos fazer isso!** (veja abaixo)
 
 #### 2. **Não precisamos desses workflows**
 
 **Por quê:**
-- Usamos nosso próprio `Dockerfile.centralcom`
-- Não publicamos imagens no DockerHub oficial
-- Esses workflows são do repositório upstream (Chatwoot original)
-- Nossa imagem é construída localmente
+- ✅ Usamos nosso próprio `Dockerfile.centralcom`
+- ✅ Não publicamos imagens no DockerHub oficial do Chatwoot
+- ✅ Esses workflows são do repositório upstream (Chatwoot original)
+- ✅ Nossa imagem é construída localmente ou em outro CI/CD
+- ✅ Publicar no DockerHub oficial não faz sentido (seria com nome errado: `chatwoot/chatwoot`)
+
+**O que esses workflows fazem:**
+- Tentam publicar imagens Docker no DockerHub com nome `chatwoot/chatwoot`
+- Isso é para o repositório oficial do Chatwoot
+- Não é necessário para nosso fork
 
 #### 3. **Workflows são ativados automaticamente**
 
-Os workflows estão configurados para rodar em push para `develop` e `master`:
+Os workflows estão configurados para rodar automaticamente em push para `develop` e `master`:
 ```yaml
 on:
   push:
     branches:
-      - develop
-      - master
+      - develop    # ← Ativa quando você faz push
+      - master     # ← Ativa quando você faz push
 ```
 
-Como fazemos push para essas branches, os workflows são acionados.
+Como fazemos push para essas branches, os workflows são acionados automaticamente, mesmo que não precisemos deles.
 
 ### Soluções
 
@@ -820,7 +859,30 @@ rm .github/workflows/publish_ee_docker.yml
 
 ---
 
-#### Opção 3: Ignorar (Atual)
+#### Opção 3: Configurar Secrets (NÃO Recomendado)
+
+**Ação:** Configurar secrets do DockerHub no fork
+
+**Como fazer:**
+1. Ir em: GitHub → Settings → Secrets and variables → Actions
+2. Adicionar `DOCKERHUB_USERNAME` e `DOCKERHUB_TOKEN`
+3. Workflows funcionariam
+
+**Prós:**
+- ✅ Workflows funcionariam
+
+**Contras:**
+- ❌ Não precisamos publicar imagens
+- ❌ Expor credenciais desnecessariamente
+- ❌ Custo de build no GitHub Actions (tempo e recursos)
+- ❌ Publicaria imagens com nome errado (`chatwoot/chatwoot` ao invés de nosso nome)
+- ❌ Não faz sentido para nosso fork
+
+**⚠️ NÃO RECOMENDADO!**
+
+---
+
+#### Opção 4: Ignorar (Atual)
 
 **Ação:** Não fazer nada
 
@@ -828,13 +890,34 @@ rm .github/workflows/publish_ee_docker.yml
 
 Os erros não afetam o funcionamento do sistema. Podemos ignorar ou desabilitar conforme preferência.
 
+**Prós:**
+- ✅ Não requer mudanças
+- ✅ Não afeta funcionalidade
+
+**Contras:**
+- ❌ Interface do GitHub mostra erros
+- ❌ Pode confundir ao ver "checks failing"
+
 ---
 
-### Status Atual
+### 🎯 Recomendação
+
+**Opção 1: Desabilitar Workflows com condição** ⭐
+
+**Por quê:**
+- É a solução mais limpa
+- Mantém referência dos workflows originais
+- Remove erros sem perder informação
+- Fácil de reverter se necessário
+- Não quebra nada se quisermos contribuir upstream
+
+### 📝 Status Atual
 
 **Status:** ⚠️ **Pendente de implementação**
 
-Por enquanto, os erros não afetam o funcionamento. Recomendação: Implementar Opção 1 quando houver tempo.
+Por enquanto, os erros não afetam o funcionamento. **Recomendação:** Implementar Opção 1 quando houver tempo.
+
+**📚 Ver mais:** [`HISTORICO_MODIFICACOES.md`](./HISTORICO_MODIFICACOES.md) - Seção "Erros do GitHub Actions"
 
 ---
 
