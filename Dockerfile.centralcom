@@ -1,0 +1,39 @@
+# Dockerfile para CentralCom (Chatwoot Customizado)
+# Baseado em chatwoot/chatwoot:v4.1.0
+
+FROM chatwoot/chatwoot:v4.1.0
+
+# Metadados
+LABEL maintainer="Bruno Hizumi <brunohir.izumi@gmail.com>"
+LABEL version="v4.1.0-centralcom"
+LABEL description="Chatwoot customizado para CentralCom"
+
+# Copiar customizações
+# Logos e ícones
+COPY ./public/brand-assets/logo.svg /app/public/brand-assets/logo.svg
+COPY ./public/brand-assets/logo_dark.svg /app/public/brand-assets/logo_dark.svg
+COPY ./public/brand-assets/logo_thumbnail.svg /app/public/brand-assets/logo_thumbnail.svg
+
+# Favicons
+COPY ./public/favicon-*.png /app/public/
+
+# Ícones Apple
+COPY ./public/apple-icon-*.png /app/public/
+COPY ./public/apple-touch-icon*.png /app/public/
+
+# Ícones Android
+COPY ./public/android-icon-*.png /app/public/
+
+# Ícones Microsoft
+COPY ./public/ms-icon-*.png /app/public/
+
+# Configurações
+COPY ./config/installation_config.yml /app/config/installation_config.yml
+COPY ./app/views/layouts/vueapp.html.erb /app/app/views/layouts/vueapp.html.erb
+
+# Recompilar assets (se necessário para logos)
+RUN RAILS_ENV=production SECRET_KEY_BASE=dummy bundle exec rake assets:precompile
+
+# Manter o mesmo entrypoint original
+# O entrypoint já está configurado na imagem base
+
