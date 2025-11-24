@@ -23,6 +23,7 @@ Facilitar o trabalho com Git/GitHub, evitando confusões sobre:
 2. [Workflow de Desenvolvimento](#2-workflow-de-desenvolvimento)
 3. [Comandos Essenciais](#3-comandos-essenciais)
 4. [Como Saber se Está na Versão Correta](#4-como-saber-se-está-na-versão-correta)
+   - [4.1. Entendendo Disco vs. Memória do Cursor vs. Git/GitHub](#41-entendendo-disco-vs-memória-do-cursor-vs-gitgithub)
 5. [Navegação entre Versões](#5-navegação-entre-versões)
 6. [Problemas Comuns](#6-problemas-comuns)
 7. [GitHub Actions](#7-github-actions)
@@ -295,6 +296,141 @@ git log HEAD..origin/develop
 
 # Se não houver saída, está sincronizado
 ```
+
+---
+
+## 4.1. Entendendo Disco vs. Memória do Cursor vs. Git/GitHub
+
+### ⚠️ Dúvida Comum: "O Git foi sincronizado mesmo se eu não aceitei no Cursor?"
+
+**Resposta curta: Sim! O Git trabalha com o disco, não com a memória do Cursor.**
+
+### Como Funciona o Processo
+
+#### 1. **Quando arquivos são modificados:**
+
+```
+IA modifica arquivo → Escrito DIRETAMENTE no DISCO
+                    ↓
+              Git lê do DISCO
+```
+
+- As modificações são escritas diretamente no disco
+- O Git sempre trabalha com o que está no disco
+- O Cursor mantém uma cópia em memória para edição
+
+#### 2. **Quando você faz `git add` e `git commit`:**
+
+```
+git add arquivo → Git lê do DISCO e adiciona ao staging
+git commit      → Git lê do DISCO e cria commit
+```
+
+- O Git lê do disco, não da memória do Cursor
+- O commit acontece mesmo se o Cursor mostrar "não aceito"
+- O que está no disco é o que importa para o Git
+
+#### 3. **O que o Cursor mostra como "não aceito":**
+
+```
+Cursor em memória ≠ Disco
+         ↓
+    Mostra "não aceito"
+```
+
+- É apenas uma diferença entre memória do Cursor e disco
+- Não afeta o Git, que já trabalhou com o arquivo no disco
+- É apenas uma questão de interface/sincronização visual
+
+#### 4. **Quando você aceita no Cursor:**
+
+```
+Você aceita → Cursor sincroniza memória com DISCO
+            → Apenas atualiza interface
+            → NÃO altera o que foi commitado
+```
+
+- O Cursor apenas sincroniza sua interface com o disco
+- Não altera o que já foi commitado pelo Git
+- É apenas uma atualização visual
+
+### Fluxo Visual Completo
+
+```
+┌─────────────────────────────────────────────────────────┐
+│ 1. IA modifica arquivo                                   │
+│    → Escrito no DISCO ✅                                 │
+└─────────────────────────────────────────────────────────┘
+                    ↓
+┌─────────────────────────────────────────────────────────┐
+│ 2. IA faz git add/commit                                 │
+│    → Git lê do DISCO ✅                                  │
+│    → Commit criado ✅                                     │
+│    → Push para GitHub ✅                                  │
+└─────────────────────────────────────────────────────────┘
+                    ↓
+┌─────────────────────────────────────────────────────────┐
+│ 3. Cursor mostra "não aceito"                            │
+│    → Apenas interface (memória vs disco)                 │
+│    → Git JÁ commitou ✅                                   │
+└─────────────────────────────────────────────────────────┘
+                    ↓
+┌─────────────────────────────────────────────────────────┐
+│ 4. Você aceita no Cursor                                 │
+│    → Sincroniza interface com DISCO                       │
+│    → Git JÁ estava sincronizado ✅                       │
+└─────────────────────────────────────────────────────────┘
+```
+
+### Como Verificar se Está Realmente Sincronizado
+
+```bash
+cd /root/repos/centralcom
+
+# 1. Verificar status
+git status
+# Se mostrar "up to date" e "nothing to commit" → ✅ Sincronizado!
+
+# 2. Verificar se há diferenças no disco
+git diff HEAD
+# Se não mostrar nada → ✅ Tudo commitado!
+
+# 3. Verificar se há arquivos staged
+git diff --cached
+# Se não mostrar nada → ✅ Nada pendente!
+
+# 4. Verificar últimos commits
+git log --oneline -5
+# Mostra os commits que foram feitos → ✅ Confirmado!
+```
+
+### Resumo Importante
+
+| Situação | Git/GitHub | Cursor | Status |
+|----------|------------|--------|--------|
+| Arquivo modificado no disco | ✅ Lê do disco | ⚠️ Mostra "não aceito" | Git funciona normalmente |
+| `git commit` executado | ✅ Commit criado | ⚠️ Ainda mostra "não aceito" | **Git já sincronizou!** |
+| Você aceita no Cursor | ✅ Já estava OK | ✅ Interface sincronizada | Tudo OK |
+
+### ⚠️ Pontos Importantes
+
+1. **Git trabalha com disco:** O Git sempre lê/escreve do disco, não da memória do Cursor
+2. **Cursor é interface:** O "não aceito" é apenas visual, não afeta o Git
+3. **Commits são reais:** Se `git status` mostra "nothing to commit", está tudo commitado
+4. **Aceitar no Cursor:** Apenas sincroniza interface, não altera commits já feitos
+
+### 💡 Dica
+
+**Se você está em dúvida se algo foi commitado:**
+```bash
+git status
+```
+
+**Se mostrar:**
+- `"Your branch is up to date with 'origin/develop'"` → ✅ Sincronizado
+- `"nothing to commit, working tree clean"` → ✅ Tudo commitado
+
+**Então está tudo OK, mesmo que o Cursor ainda mostre "não aceito"!**
 
 ---
 
