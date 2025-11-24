@@ -31,8 +31,8 @@ COPY ./public/ms-icon-*.png /app/public/
 COPY ./config/installation_config.yml /app/config/installation_config.yml
 COPY ./app/views/layouts/vueapp.html.erb /app/app/views/layouts/vueapp.html.erb
 
-# Recompilar assets (se necessário para logos)
-RUN RAILS_ENV=production SECRET_KEY_BASE=dummy bundle exec rake assets:precompile
+# Nota: Não é necessário recompilar assets pois estamos apenas copiando arquivos estáticos
+# Os logos e favicons são servidos diretamente do /public
 
 # Manter o mesmo entrypoint original
 # O entrypoint já está configurado na imagem base
