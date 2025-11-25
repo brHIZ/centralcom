@@ -30,14 +30,7 @@ COPY ./public/ms-icon-*.png /app/public/
 # Configurações
 COPY ./config/installation_config.yml /app/config/installation_config.yml
 COPY ./app/views/layouts/vueapp.html.erb /app/app/views/layouts/vueapp.html.erb
-
-# Arquivos de tradução (i18n)
-COPY ./app/javascript/dashboard/i18n/locale/pt_BR/login.json /app/app/javascript/dashboard/i18n/locale/pt_BR/login.json
-COPY ./app/javascript/dashboard/i18n/locale/en/login.json /app/app/javascript/dashboard/i18n/locale/en/login.json
-
-# Views do Super Admin e Onboarding
 COPY ./app/views/super_admin/devise/sessions/new.html.erb /app/app/views/super_admin/devise/sessions/new.html.erb
-COPY ./app/views/installation/onboarding/index.html.erb /app/app/views/installation/onboarding/index.html.erb
 
 # NOTA: Não é necessário recompilar assets pois estamos usando CSS inline no layout
 # para sobrescrever o tamanho do logo. Isso evita problemas de memória durante o build.
