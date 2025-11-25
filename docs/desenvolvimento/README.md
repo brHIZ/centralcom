@@ -54,24 +54,7 @@ Esta pasta contém documentação técnica sobre o desenvolvimento e customizaç
 
 ---
 
-### 4. [`PLANO_DEPLOY_PRODUCAO.md`](./PLANO_DEPLOY_PRODUCAO.md)
-**Plano detalhado de deploy seguro para produção**
-
-- Checklist pré-deploy completo
-- Processo passo a passo (script automatizado e manual)
-- Instruções de rollback
-- Troubleshooting comum
-- Verificações pós-deploy
-
-**Use quando:**
-- For fazer deploy em produção
-- Precisar de checklist de segurança
-- Precisar fazer rollback
-- Encontrar problemas após deploy
-
----
-
-### 5. [`PLANO_DESENVOLVIMENTO_FEATURES.md`](./PLANO_DESENVOLVIMENTO_FEATURES.md)
+### 4. [`PLANO_DESENVOLVIMENTO_FEATURES.md`](./PLANO_DESENVOLVIMENTO_FEATURES.md)
 **Planejamento detalhado de novas features**
 
 - Análise: Enterprise vs Módulo Próprio
@@ -131,7 +114,7 @@ Esta pasta contém documentação técnica sobre o desenvolvimento e customizaç
 
 ---
 
-**Última atualização:** 15/01/2025
+**Última atualização:** 16/01/2025
 
 ---
 
