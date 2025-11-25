@@ -1,6 +1,6 @@
 # 🗺️ Guia de Estrutura do Código - CentralCom
 
-**Última atualização:** 15/01/2025
+**Última atualização:** 25/11/2024
 
 Este documento serve como referência rápida para entender a estrutura do código fonte do Chatwoot e onde encontrar arquivos para modificações comuns.
 
@@ -254,6 +254,36 @@ config/
 - **Arquivo:** `.env` (não versionado) ou `config/environments/`
 - **Documentação:** Ver README.md ou documentação do Chatwoot
 
+#### **⚠️ Tabela installation_configs (PostgreSQL)**
+- **Localização:** Banco de dados PostgreSQL, tabela `installation_configs`
+- **O que contém:**
+  - Configurações de instalação (INSTALLATION_NAME, BRAND_NAME, etc)
+  - Valores são serializados em formato YAML Ruby
+  - **⚠️ IMPORTANTE:** Valores do banco **sobrescrevem** variáveis de ambiente!
+- **Por que é importante:**
+  - Variáveis de ambiente só funcionam na **primeira inicialização** com banco vazio
+  - Bancos existentes usam valores salvos na tabela, ignorando variáveis de ambiente
+  - Para mudar configurações em instalação existente, é necessário atualizar diretamente no banco
+- **Formato do valor:**
+  ```yaml
+  --- !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+  value: CentralCom
+  ```
+- **Como consultar:**
+  ```sql
+  SELECT name, serialized_value FROM installation_configs 
+  WHERE name IN ('INSTALLATION_NAME', 'BRAND_NAME');
+  ```
+- **Como atualizar:**
+  ```sql
+  UPDATE installation_configs 
+  SET serialized_value = '--- !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+  value: NovoValor
+  ' 
+  WHERE name = 'INSTALLATION_NAME';
+  ```
+- **📚 Ver também:** [`FAQ.md`](/root/FAQ.md) - Seção "INSTALLATION_NAME NÃO FUNCIONA"
+
 ---
 
 ## 6. Docker e Deploy
@@ -480,5 +510,4 @@ centralcom/
 
 ---
 
-**Última atualização:** 15/01/2025
-
+**Última atualização:** 25/11/2024

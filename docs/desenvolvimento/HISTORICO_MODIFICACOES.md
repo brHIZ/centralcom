@@ -1,6 +1,6 @@
 # 📝 Histórico de Modificações - CentralCom
 
-**Última atualização:** 16/01/2025
+**Última atualização:** 25/11/2024
 
 Este documento registra todas as modificações realizadas no fork CentralCom do Chatwoot, incluindo tentativas, sucessos, falhas e as razões por trás de cada decisão.
 
@@ -20,6 +20,8 @@ Manter um registro detalhado de todas as customizações, permitindo:
 
 1. [Customização de Logo e Favicon](#1-customização-de-logo-e-favicon)
 2. [Aumento do Tamanho do Logo na Página de Login](#2-aumento-do-tamanho-do-logo-na-página-de-login)
+3. [Erros do GitHub Actions](#3-erros-do-github-actions)
+4. [Deploy para Produção - Substituição de Textos "Chatwoot" por "CentralCom"](#4-deploy-para-produção---substituição-de-textos-chatwoot-por-centralcom)
 
 ---
 
@@ -429,9 +431,204 @@ jobs:
 
 ---
 
+## 4. Deploy para Produção - Substituição de Textos "Chatwoot" por "CentralCom"
+
+**Data:** 25/11/2024  
+**Status:** ✅ Concluído (após múltiplas tentativas)
+
+### Objetivo
+Fazer o deploy das customizações testadas no ambiente de teste (`teste-centralcom.hizai.com.br`) para o ambiente de produção (`centralcom.hizai.com.br`), incluindo:
+- Logos, ícones e favicons CentralCom
+- Substituição de textos "Chatwoot" por "CentralCom" (título da aba, página de login)
+- Manter dados e configurações existentes em produção
+
+### Problema Encontrado
+
+Após o deploy inicial para produção:
+- ✅ Logos, ícones e favicons: **OK** (apareciam corretamente)
+- ❌ Título da aba: **Chatwoot** (deveria ser CentralCom)
+- ❌ Texto na página de login: **"Entrar no Chatwoot"** (deveria ser CentralCom)
+
+**Detalhe importante:** O ambiente de teste estava 100% correto!
+
+### Tentativas e Resultados
+
+#### Tentativa 1: Verificar INSTALLATION_NAME no YAML
+**Data:** 25/11/2024  
+**Ação:**
+- Verificado `chatwoot.yaml` (produção)
+- Atualizado `INSTALLATION_NAME=CentralCom`
+- Redeploy do serviço
+
+**Resultado:** ❌ **FALHOU**
+- Título e texto continuavam "Chatwoot"
+
+---
+
+#### Tentativa 2: Verificar arquivos i18n no Dockerfile
+**Data:** 25/11/2024  
+**Ação:**
+- Verificado que arquivos `login.json` com textos traduzidos existiam no repositório
+- Adicionado COPY dos arquivos i18n no `Dockerfile.centralcom`:
+```dockerfile
+# Traduções (i18n) - Arquivos de login
+COPY ./app/javascript/dashboard/i18n/locale/pt_BR/login.json /app/app/javascript/dashboard/i18n/locale/pt_BR/login.json
+COPY ./app/javascript/dashboard/i18n/locale/pt/login.json /app/app/javascript/dashboard/i18n/locale/pt/login.json
+COPY ./app/javascript/dashboard/i18n/locale/en/login.json /app/app/javascript/dashboard/i18n/locale/en/login.json
+```
+- Rebuild da imagem e redeploy
+
+**Resultado:** ❌ **FALHOU**
+- Problema persistia mesmo com arquivos i18n corretos na imagem
+
+**Causa identificada:**
+- Arquivos i18n são compilados pelo Vite durante o build
+- Copiar arquivos JSON não atualiza os assets já compilados
+- Seria necessário recompilar frontend (problema de memória já enfrentado)
+
+---
+
+#### Tentativa 3: Comparar Test vs Produção
+**Data:** 25/11/2024  
+**Ação:**
+- Comparação sistemática entre os dois ambientes
+- Ambos usavam a **mesma imagem**: `brunohiz/centralcom:develop`
+- Ambos tinham **mesmas variáveis de ambiente**
+- Diferença: **banco de dados diferente** (chatwoot_test vs chatwoot)
+
+**Descoberta crucial:**
+- O Chatwoot armazena configurações na tabela `installation_configs` do PostgreSQL
+- Essas configurações do banco **sobrescrevem** as variáveis de ambiente
+- O banco de produção tinha valores antigos: `INSTALLATION_NAME = "Chatwoot"`
+
+---
+
+#### Tentativa 4: Atualizar Banco de Dados (SOLUÇÃO FINAL)
+**Data:** 25/11/2024  
+**Ação:**
+1. Verificado valores no banco de produção:
+```sql
+SELECT name, serialized_value FROM installation_configs 
+WHERE name IN ('INSTALLATION_NAME', 'BRAND_NAME');
+```
+**Resultado:** Ambos tinham valor `"Chatwoot"`
+
+2. Atualizado valores diretamente no banco:
+```sql
+UPDATE installation_configs 
+SET serialized_value = '--- !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+value: CentralCom
+' 
+WHERE name = 'INSTALLATION_NAME';
+
+UPDATE installation_configs 
+SET serialized_value = '--- !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+value: CentralCom
+' 
+WHERE name = 'BRAND_NAME';
+```
+
+3. Limpado cache do Redis:
+```bash
+docker exec $(docker ps -q -f name=chatwoot_chatwoot_redis) redis-cli FLUSHALL
+```
+
+4. Redeploy do serviço:
+```bash
+docker service update --force chatwoot_chatwoot_app
+```
+
+**Resultado:** ✅ **SUCESSO**
+- Título da aba: **CentralCom** ✅
+- Texto na página de login: **"Entrar no CentralCom"** ✅
+- Logos e ícones: **CentralCom** ✅
+
+### Por que funcionou no Teste mas não na Produção?
+
+| Aspecto | Teste | Produção |
+|---------|-------|----------|
+| **Banco de dados** | Novo (criado com customizações) | Antigo (migrado do Chatwoot original) |
+| **installation_configs** | Valores novos (CentralCom) | Valores antigos (Chatwoot) |
+| **Imagem Docker** | `brunohiz/centralcom:develop` | `brunohiz/centralcom:develop` |
+
+**Explicação técnica:**
+- O ambiente de teste usava um banco de dados novo (`chatwoot_test`)
+- Quando o Chatwoot inicia com banco novo, ele popula `installation_configs` usando `INSTALLATION_NAME` do ambiente
+- O ambiente de produção tinha banco de dados pré-existente com valores antigos
+- O Rails lê primeiro do banco de dados, depois das variáveis de ambiente
+- Valores do banco têm **prioridade** sobre variáveis de ambiente
+
+### Arquivos Modificados
+
+1. **`Dockerfile.centralcom`**
+   - Adicionado COPY dos arquivos i18n (para builds futuros)
+
+2. **`chatwoot.yaml`**
+   - `INSTALLATION_NAME=CentralCom` (confirmado)
+   - Imagem: `brunohiz/centralcom:develop`
+
+3. **PostgreSQL (banco `chatwoot`)**
+   - Tabela `installation_configs`
+   - `INSTALLATION_NAME`: `"Chatwoot"` → `"CentralCom"`
+   - `BRAND_NAME`: `"Chatwoot"` → `"CentralCom"`
+
+### Comandos Utilizados
+
+```bash
+# Ver configurações no banco
+docker exec -it $(docker ps -q -f name=pgvector.1) psql -U postgres -d chatwoot -c \
+  "SELECT name, serialized_value FROM installation_configs WHERE name IN ('INSTALLATION_NAME', 'BRAND_NAME');"
+
+# Atualizar INSTALLATION_NAME
+docker exec -it $(docker ps -q -f name=pgvector.1) psql -U postgres -d chatwoot -c \
+  "UPDATE installation_configs SET serialized_value = '--- !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+value: CentralCom
+' WHERE name = 'INSTALLATION_NAME';"
+
+# Atualizar BRAND_NAME
+docker exec -it $(docker ps -q -f name=pgvector.1) psql -U postgres -d chatwoot -c \
+  "UPDATE installation_configs SET serialized_value = '--- !ruby/hash:ActiveSupport::HashWithIndifferentAccess
+value: CentralCom
+' WHERE name = 'BRAND_NAME';"
+
+# Limpar cache Redis
+docker exec $(docker ps -q -f name=chatwoot_chatwoot_redis) redis-cli FLUSHALL
+
+# Forçar restart do serviço
+docker service update --force chatwoot_chatwoot_app
+```
+
+### Lições Aprendidas
+
+✅ **O que funcionou:**
+- Verificar diferenças entre ambientes sistematicamente
+- Investigar banco de dados quando variáveis de ambiente não funcionam
+- Atualizar diretamente na tabela `installation_configs`
+
+❌ **O que não funcionou:**
+- Apenas atualizar variáveis de ambiente (banco tem prioridade)
+- Apenas copiar arquivos i18n sem recompilar (assets pré-compilados)
+- Assumir que mesma imagem = mesmo comportamento
+
+💡 **Princípios:**
+- **Chatwoot armazena configurações no banco:** `installation_configs` sobrescreve variáveis de ambiente
+- **Bancos novos vs existentes:** Bancos novos usam valores do ambiente, bancos existentes usam valores já salvos
+- **Comparar ambientes:** Quando algo funciona em um lugar e não em outro, compare TUDO (imagem, variáveis, banco, cache)
+- **Limpar cache:** Sempre limpar Redis após mudanças de configuração
+
+### Estrutura Final da Tabela installation_configs
+
+| name | value |
+|------|-------|
+| INSTALLATION_NAME | CentralCom |
+| BRAND_NAME | CentralCom |
+
+---
+
 ## 🔄 Próximos Passos
 
 - [x] Implementar Opção 1 para desabilitar workflows do GitHub Actions ✅
+- [x] Deploy de customizações para produção ✅
 - [ ] Documentar outras customizações conforme forem feitas
 - [ ] Manter este histórico atualizado
 

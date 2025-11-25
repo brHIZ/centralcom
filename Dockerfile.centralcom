@@ -32,6 +32,11 @@ COPY ./config/installation_config.yml /app/config/installation_config.yml
 COPY ./app/views/layouts/vueapp.html.erb /app/app/views/layouts/vueapp.html.erb
 COPY ./app/views/super_admin/devise/sessions/new.html.erb /app/app/views/super_admin/devise/sessions/new.html.erb
 
+# Traduções (i18n) - Arquivos de login
+COPY ./app/javascript/dashboard/i18n/locale/pt_BR/login.json /app/app/javascript/dashboard/i18n/locale/pt_BR/login.json
+COPY ./app/javascript/dashboard/i18n/locale/pt/login.json /app/app/javascript/dashboard/i18n/locale/pt/login.json
+COPY ./app/javascript/dashboard/i18n/locale/en/login.json /app/app/javascript/dashboard/i18n/locale/en/login.json
+
 # NOTA: Não é necessário recompilar assets pois estamos usando CSS inline no layout
 # para sobrescrever o tamanho do logo. Isso evita problemas de memória durante o build.
 # Se no futuro precisar modificar os arquivos Vue, será necessário recompilar os assets.
