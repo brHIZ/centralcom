@@ -278,7 +278,82 @@ Aumentar o tamanho do logo nas páginas de login (usuário e Super Admin) de `h-
 
 ---
 
-## 3. Erros do GitHub Actions
+## 3. Substituição de Textos "Chatwoot" por "CentralCom"
+
+**Data:** Janeiro 2025  
+**Status:** ✅ Concluído
+
+### Objetivo
+Substituir todas as referências visíveis de "Chatwoot" por "CentralCom" em:
+- Título da aba do navegador
+- Texto "Entrar no Chatwoot" na página de login
+- Textos na página de login do Super Admin
+- Textos na página de onboarding
+
+### Processo
+
+#### 3.1. Arquivos de Tradução (i18n)
+**Arquivos modificados:**
+- `app/javascript/dashboard/i18n/locale/pt_BR/login.json`
+  - `"TITLE": "Entrar no Chatwoot"` → `"TITLE": "Entrar no CentralCom"`
+- `app/javascript/dashboard/i18n/locale/en/login.json`
+  - `"TITLE": "Login to Chatwoot"` → `"TITLE": "Login to CentralCom"`
+
+**Por que:**
+- O componente Vue de login usa `$t('LOGIN.TITLE')` para exibir o título
+- A função `useInstallationName()` substitui automaticamente se `installationName` estiver configurado
+- Mas o texto base ainda mostrava "Chatwoot" em alguns idiomas
+
+#### 3.2. Página de Login do Super Admin
+**Arquivo modificado:** `app/views/super_admin/devise/sessions/new.html.erb`
+
+**Mudanças:**
+- `<title>SuperAdmin | Chatwoot</title>` → `<title>SuperAdmin | CentralCom</title>`
+- `alt="Chatwoot"` → `alt="CentralCom"` (nas tags `<img>`)
+
+#### 3.3. Página de Onboarding
+**Arquivo modificado:** `app/views/installation/onboarding/index.html.erb`
+
+**Mudanças:**
+- `<title>SuperAdmin | Chatwoot</title>` → `<title>SuperAdmin | CentralCom</title>`
+- `alt="Chatwoot"` → `alt="CentralCom"` (nas tags `<img>`)
+- `"Howdy, Welcome to Chatwoot 👋"` → `"Howdy, Welcome to CentralCom 👋"`
+
+### Arquivos Modificados
+
+1. **`app/javascript/dashboard/i18n/locale/pt_BR/login.json`**
+   - Título do login em português
+
+2. **`app/javascript/dashboard/i18n/locale/en/login.json`**
+   - Título do login em inglês
+
+3. **`app/views/super_admin/devise/sessions/new.html.erb`**
+   - Título da aba e alt text das imagens
+
+4. **`app/views/installation/onboarding/index.html.erb`**
+   - Título da aba, alt text das imagens e mensagem de boas-vindas
+
+### Observações
+
+- **Título da aba principal:** Já estava usando `@global_config['INSTALLATION_NAME']` que está configurado como "CentralCom" no `installation_config.yml`, então não precisou de alteração
+- **Outros idiomas:** Apenas português (pt_BR) e inglês (en) foram modificados. Se necessário, outros idiomas podem ser atualizados seguindo o mesmo padrão
+- **Função `useInstallationName()`:** Esta função já substitui automaticamente "Chatwoot" pelo nome da instalação quando disponível, mas é melhor ter o texto base correto
+
+### Lições Aprendidas
+
+✅ **O que funcionou:**
+- Modificar arquivos de tradução i18n é a forma correta de alterar textos exibidos
+- Títulos HTML devem ser modificados diretamente nos templates ERB
+- Alt text das imagens também devem ser atualizados para acessibilidade
+
+💡 **Princípios:**
+- **Textos visíveis:** Sempre modificar nos arquivos de tradução ou templates
+- **Títulos de página:** Modificar diretamente nos templates HTML/ERB
+- **Acessibilidade:** Atualizar alt text das imagens também
+
+---
+
+## 4. Erros do GitHub Actions
 
 **Data:** Janeiro 2025  
 **Status:** ⚠️ Identificado (não crítico, pendente de correção)
