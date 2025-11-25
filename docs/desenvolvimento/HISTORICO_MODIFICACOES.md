@@ -1,6 +1,6 @@
 # 📝 Histórico de Modificações - CentralCom
 
-**Última atualização:** 15/01/2025
+**Última atualização:** 16/01/2025
 
 Este documento registra todas as modificações realizadas no fork CentralCom do Chatwoot, incluindo tentativas, sucessos, falhas e as razões por trás de cada decisão.
 

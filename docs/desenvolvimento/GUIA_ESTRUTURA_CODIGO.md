@@ -73,13 +73,24 @@ app/javascript/
 
 ### Onde Modificar...
 
-#### **Página de Login**
+#### **Página de Login (Usuário)**
 - **Arquivo:** `app/javascript/v3/views/login/Index.vue`
 - **O que contém:**
   - Template HTML da página
   - Lógica de autenticação
   - Logo e branding
 - **Exemplo de modificação:** Tamanho do logo (`h-8`, `h-16`, `h-24`)
+- **CSS override:** `app/views/layouts/vueapp.html.erb` (CSS inline no `<head>`)
+
+#### **Página de Login do Super Admin**
+- **Arquivo:** `app/views/super_admin/devise/sessions/new.html.erb`
+- **O que contém:**
+  - Template ERB completo (não usa Vue.js)
+  - Formulário de login do Super Admin
+  - Logo e branding
+- **Exemplo de modificação:** Tamanho do logo (`h-8` → `h-24`)
+- **CSS override:** CSS inline no próprio arquivo `<head>` (não usa layout compartilhado)
+- **Importante:** Este arquivo é copiado pelo `Dockerfile.centralcom` separadamente
 
 #### **Página de Signup**
 - **Arquivo:** `app/javascript/v3/views/auth/signup/Index.vue`
