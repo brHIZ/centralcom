@@ -112,13 +112,13 @@ Substituir os logos e favicons padrão do Chatwoot pelos da CentralCom.
 
 ---
 
-## 2. Aumento do Tamanho do Logo na Página de Login
+## 2. Aumento do Tamanho do Logo nas Páginas de Login
 
 **Data:** Janeiro 2025  
 **Status:** ✅ Concluído (após múltiplas tentativas)
 
 ### Objetivo
-Aumentar o tamanho do logo na página de login de `h-8` (32px) para um tamanho maior e mais visível.
+Aumentar o tamanho do logo nas páginas de login (usuário e Super Admin) de `h-8` (32px) para um tamanho maior e mais visível (96px).
 
 ### Tentativas e Resultados
 
@@ -221,10 +221,15 @@ Aumentar o tamanho do logo na página de login de `h-8` (32px) para um tamanho m
    - Mantido para quando recompilarmos assets no futuro
 
 2. **`app/views/layouts/vueapp.html.erb`**
-   - Adicionado CSS inline para sobrescrever tamanho do logo
+   - Adicionado CSS inline para sobrescrever tamanho do logo na página de login do usuário
    - **Esta é a solução que funciona atualmente**
 
-3. **`Dockerfile.centralcom`**
+3. **`app/views/super_admin/devise/sessions/new.html.erb`**
+   - Alterado `h-8` → `h-24` (96px) nas tags `<img>`
+   - Adicionado CSS inline para sobrescrever tamanho do logo na página de login do Super Admin
+   - **Solução aplicada diretamente no HTML da página**
+
+4. **`Dockerfile.centralcom`**
    - Simplificado, removida tentativa de recompilação
    - Apenas copia arquivos estáticos e layout
 
