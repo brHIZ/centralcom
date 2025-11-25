@@ -276,8 +276,11 @@ centralcom/
 - **O que faz:**
   - Baseia-se em `chatwoot/chatwoot:v4.1.0`
   - Copia assets customizados (logos, favicons)
-  - Copia configurações customizadas
+  - Copia configurações customizadas (`installation_config.yml`)
+  - Copia layouts customizados (`vueapp.html.erb`)
+  - Copia página de login do Super Admin (`super_admin/devise/sessions/new.html.erb`)
   - **⚠️ Não recompila assets Vue.js** (usa CSS inline)
+  - **Importante:** Sempre adicionar `COPY` para novos arquivos que modificar
 
 #### **Docker Compose (Produção)**
 - **Arquivo:** `docker-compose.production.yaml`
@@ -293,12 +296,29 @@ centralcom/
    - Arquivo: `public/brand-assets/logo.svg` ou `logo_dark.svg`
    - Substituir o arquivo SVG
 
-2. **Tamanho do Logo na Página de Login:**
-   - **Opção 1 (CSS - Recomendado):** `app/views/layouts/vueapp.html.erb`
-     - Adicionar CSS inline com `!important`
-   - **Opção 2 (Vue Component):** `app/javascript/v3/views/login/Index.vue`
-     - Modificar classe Tailwind (`h-8`, `h-16`, `h-24`)
-     - ⚠️ Requer recompilação de assets
+2. **Tamanho do Logo nas Páginas de Login:**
+   
+   **Página de Login (Usuário):**
+   - Arquivo Vue: `app/javascript/v3/views/login/Index.vue`
+   - Alterar classe Tailwind: `h-8` → `h-16` ou `h-24`
+   - **CSS Override:** Adicionar CSS inline em `app/views/layouts/vueapp.html.erb` (no `<head>`)
+   - **Por quê:** Evita recompilação de assets Vue.js (que consome muita memória)
+   
+   **Página de Login do Super Admin:**
+   - Arquivo ERB: `app/views/super_admin/devise/sessions/new.html.erb`
+   - Alterar classe Tailwind: `h-8` → `h-24` nas tags `<img>`
+   - **CSS Override:** Adicionar CSS inline no próprio arquivo (no `<head>`)
+   - **Importante:** Este arquivo deve ser copiado pelo `Dockerfile.centralcom`
+   - **Exemplo de CSS:**
+     ```css
+     <style>
+       main section.max-w-5xl img[src*="logo"],
+       main section.max-w-5xl img[src*="brand-assets"] {
+         height: 6rem !important; /* 96px */
+         width: auto !important;
+       }
+     </style>
+     ```
 
 3. **Logo no Sidebar/Dashboard:**
    - Provavelmente em: `app/javascript/v3/components/sidebar/` ou similar
