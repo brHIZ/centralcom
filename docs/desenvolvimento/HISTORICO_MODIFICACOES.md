@@ -19,9 +19,7 @@ Manter um registro detalhado de todas as customizações, permitindo:
 ## 📋 Índice
 
 1. [Customização de Logo e Favicon](#1-customização-de-logo-e-favicon)
-2. [Aumento do Tamanho do Logo nas Páginas de Login](#2-aumento-do-tamanho-do-logo-nas-páginas-de-login)
-3. [Substituição de Textos "Chatwoot" por "CentralCom"](#3-substituição-de-textos-chatwoot-por-centralcom)
-4. [Erros do GitHub Actions](#4-erros-do-github-actions)
+2. [Aumento do Tamanho do Logo na Página de Login](#2-aumento-do-tamanho-do-logo-na-página-de-login)
 
 ---
 
@@ -114,7 +112,7 @@ Substituir os logos e favicons padrão do Chatwoot pelos da CentralCom.
 
 ---
 
-## 2. Aumento do Tamanho do Logo nas Páginas de Login
+## 2. Aumento do Tamanho do Logo na Página de Login
 
 **Data:** Janeiro 2025  
 **Status:** ✅ Concluído (após múltiplas tentativas)
@@ -177,8 +175,10 @@ Aumentar o tamanho do logo nas páginas de login (usuário e Super Admin) de `h-
 #### Tentativa 3: CSS Inline no Layout (SOLUÇÃO FINAL)
 **Data:** Terceira tentativa  
 **Ação:**
-- Adicionado CSS inline no arquivo `app/views/layouts/vueapp.html.erb`
+- Adicionado CSS inline no arquivo `app/views/layouts/vueapp.html.erb` (página de login normal)
+- Adicionado CSS inline no arquivo `app/views/super_admin/devise/sessions/new.html.erb` (página de login do Super Admin)
 - CSS sobrescreve o tamanho do logo usando `!important`
+- Alterado classes Tailwind de `h-8` → `h-24` em ambos os arquivos
 - Mantido `h-24` nos arquivos Vue para quando recompilarmos no futuro
 - Removida tentativa de recompilação do Dockerfile
 
@@ -205,10 +205,11 @@ Aumentar o tamanho do logo nas páginas de login (usuário e Super Admin) de `h-
 ```
 
 **Resultado:** ✅ **SUCESSO**
-- Logo agora aparece com 96px de altura
+- Logo agora aparece com 96px de altura em ambas as páginas de login
 - Build rápido (sem recompilação)
 - Sem problemas de memória
 - Funciona imediatamente após deploy
+- Consistência visual entre página de login normal e Super Admin
 
 **Por que funcionou:**
 - CSS inline é aplicado diretamente no HTML, não precisa de recompilação
@@ -223,17 +224,17 @@ Aumentar o tamanho do logo nas páginas de login (usuário e Super Admin) de `h-
    - Mantido para quando recompilarmos assets no futuro
 
 2. **`app/views/layouts/vueapp.html.erb`**
-   - Adicionado CSS inline para sobrescrever tamanho do logo na página de login do usuário
+   - Adicionado CSS inline para sobrescrever tamanho do logo na página de login normal
    - **Esta é a solução que funciona atualmente**
 
 3. **`app/views/super_admin/devise/sessions/new.html.erb`**
-   - Alterado `h-8` → `h-24` (96px) nas tags `<img>`
    - Adicionado CSS inline para sobrescrever tamanho do logo na página de login do Super Admin
-   - **Solução aplicada diretamente no HTML da página**
+   - Alterado classes Tailwind de `h-8` → `h-24` (96px)
+   - **Aplicada mesma solução da página de login normal**
 
 4. **`Dockerfile.centralcom`**
    - Simplificado, removida tentativa de recompilação
-   - Apenas copia arquivos estáticos e layout
+   - Apenas copia arquivos estáticos e layouts (incluindo Super Admin)
 
 ### Lições Aprendidas
 
@@ -277,85 +278,11 @@ Aumentar o tamanho do logo nas páginas de login (usuário e Super Admin) de `h-
 1. `96a18dfa3` - chore: atualizar Dockerfile com customizações
 2. `83cfeecfa` - Aumentar tamanho do logo na página de login e signup (h-8 -> h-16)
 3. `891257630` - feat: aumentar tamanho do logo na página de login (solução final)
+4. `0e10a7ed4` - feat: aumentar tamanho do logo na página de login do Super Admin
 
 ---
 
-## 3. Substituição de Textos "Chatwoot" por "CentralCom"
-
-**Data:** Janeiro 2025  
-**Status:** ✅ Concluído
-
-### Objetivo
-Substituir todas as referências visíveis de "Chatwoot" por "CentralCom" em:
-- Título da aba do navegador
-- Texto "Entrar no Chatwoot" na página de login
-- Textos na página de login do Super Admin
-- Textos na página de onboarding
-
-### Processo
-
-#### 3.1. Arquivos de Tradução (i18n)
-**Arquivos modificados:**
-- `app/javascript/dashboard/i18n/locale/pt_BR/login.json`
-  - `"TITLE": "Entrar no Chatwoot"` → `"TITLE": "Entrar no CentralCom"`
-- `app/javascript/dashboard/i18n/locale/en/login.json`
-  - `"TITLE": "Login to Chatwoot"` → `"TITLE": "Login to CentralCom"`
-
-**Por que:**
-- O componente Vue de login usa `$t('LOGIN.TITLE')` para exibir o título
-- A função `useInstallationName()` substitui automaticamente se `installationName` estiver configurado
-- Mas o texto base ainda mostrava "Chatwoot" em alguns idiomas
-
-#### 3.2. Página de Login do Super Admin
-**Arquivo modificado:** `app/views/super_admin/devise/sessions/new.html.erb`
-
-**Mudanças:**
-- `<title>SuperAdmin | Chatwoot</title>` → `<title>SuperAdmin | CentralCom</title>`
-- `alt="Chatwoot"` → `alt="CentralCom"` (nas tags `<img>`)
-
-#### 3.3. Página de Onboarding
-**Arquivo modificado:** `app/views/installation/onboarding/index.html.erb`
-
-**Mudanças:**
-- `<title>SuperAdmin | Chatwoot</title>` → `<title>SuperAdmin | CentralCom</title>`
-- `alt="Chatwoot"` → `alt="CentralCom"` (nas tags `<img>`)
-- `"Howdy, Welcome to Chatwoot 👋"` → `"Howdy, Welcome to CentralCom 👋"`
-
-### Arquivos Modificados
-
-1. **`app/javascript/dashboard/i18n/locale/pt_BR/login.json`**
-   - Título do login em português
-
-2. **`app/javascript/dashboard/i18n/locale/en/login.json`**
-   - Título do login em inglês
-
-3. **`app/views/super_admin/devise/sessions/new.html.erb`**
-   - Título da aba e alt text das imagens
-
-4. **`app/views/installation/onboarding/index.html.erb`**
-   - Título da aba, alt text das imagens e mensagem de boas-vindas
-
-### Observações
-
-- **Título da aba principal:** Já estava usando `@global_config['INSTALLATION_NAME']` que está configurado como "CentralCom" no `installation_config.yml`, então não precisou de alteração
-- **Outros idiomas:** Apenas português (pt_BR) e inglês (en) foram modificados. Se necessário, outros idiomas podem ser atualizados seguindo o mesmo padrão
-- **Função `useInstallationName()`:** Esta função já substitui automaticamente "Chatwoot" pelo nome da instalação quando disponível, mas é melhor ter o texto base correto
-
-### Lições Aprendidas
-
-✅ **O que funcionou:**
-- Modificar arquivos de tradução i18n é a forma correta de alterar textos exibidos
-- Títulos HTML devem ser modificados diretamente nos templates ERB
-- Alt text das imagens também devem ser atualizados para acessibilidade
-
-💡 **Princípios:**
-- **Textos visíveis:** Sempre modificar nos arquivos de tradução ou templates
-- **Títulos de página:** Modificar diretamente nos templates HTML/ERB
-- **Acessibilidade:** Atualizar alt text das imagens também
-
----
-
-## 4. Erros do GitHub Actions
+## 3. Erros do GitHub Actions
 
 **Data:** Janeiro 2025  
 **Status:** ⚠️ Identificado (não crítico, pendente de correção)
