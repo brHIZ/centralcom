@@ -386,11 +386,51 @@ docker exec chatwoot_chatwoot_app.1.$(docker service ps chatwoot_chatwoot_app -q
 
 ---
 
+## ⚠️ PROBLEMA COMUM: Volumes Docker Sobrescrevendo Arquivos
+
+### **Problema:**
+O volume Docker `chatwoot_public` montado em `/app/public` **sobrescreve** os arquivos copiados pelo Dockerfile. Isso significa que mesmo após fazer deploy da nova imagem, os arquivos antigos do volume continuam sendo usados.
+
+### **Solução:**
+Após fazer deploy, **copiar os arquivos customizados diretamente para o volume Docker**:
+
+```bash
+# Copiar logos, favicons e ícones para o volume
+docker run --rm \
+  -v chatwoot_public:/data \
+  -v /root/repos/centralcom/public:/source \
+  alpine sh -c "
+    cp /source/brand-assets/*.svg /data/brand-assets/ && \
+    cp /source/favicon-*.png /data/ && \
+    cp /source/apple-icon-*.png /data/ && \
+    cp /source/android-icon-*.png /data/ && \
+    cp /source/ms-icon-*.png /data/ && \
+    echo '✅ Arquivos copiados'
+  "
+
+# Reiniciar serviço para garantir que os arquivos sejam recarregados
+docker service update --force chatwoot_chatwoot_app
+```
+
+### **Por que isso acontece?**
+- O Dockerfile copia arquivos para `/app/public` na imagem
+- Mas o volume `chatwoot_public` é montado em `/app/public` no container
+- Volumes Docker têm prioridade sobre arquivos da imagem
+- Portanto, os arquivos do volume sobrescrevem os da imagem
+
+### **Solução Permanente:**
+Para evitar ter que copiar manualmente a cada deploy, você pode:
+1. **Opção 1:** Criar um script que copia os arquivos após cada deploy
+2. **Opção 2:** Modificar o processo de deploy para incluir a cópia automática
+3. **Opção 3:** Remover o volume `chatwoot_public` (mas isso pode perder outros arquivos)
+
+---
+
 ## 📝 Notas Importantes
 
 1. **Não modificar configurações existentes:** O deploy apenas atualiza a imagem Docker. Todas as configurações (variáveis de ambiente, volumes, rede) permanecem iguais.
 
-2. **Volumes preservados:** Os volumes Docker (`chatwoot_storage`, `chatwoot_public`, etc.) são preservados. Apenas os arquivos copiados pelo Dockerfile são substituídos.
+2. **Volumes preservados:** Os volumes Docker (`chatwoot_storage`, `chatwoot_public`, etc.) são preservados. **IMPORTANTE:** O volume `chatwoot_public` sobrescreve os arquivos copiados pelo Dockerfile. É necessário copiar os arquivos customizados para o volume após o deploy.
 
 3. **Banco de dados:** Nenhuma migração é executada automaticamente. Se houver migrações pendentes, executar manualmente após o deploy.
 
