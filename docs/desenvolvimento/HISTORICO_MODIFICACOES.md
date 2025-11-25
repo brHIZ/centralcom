@@ -19,7 +19,9 @@ Manter um registro detalhado de todas as customizações, permitindo:
 ## 📋 Índice
 
 1. [Customização de Logo e Favicon](#1-customização-de-logo-e-favicon)
-2. [Aumento do Tamanho do Logo na Página de Login](#2-aumento-do-tamanho-do-logo-na-página-de-login)
+2. [Aumento do Tamanho do Logo nas Páginas de Login](#2-aumento-do-tamanho-do-logo-nas-páginas-de-login)
+3. [Substituição de Textos "Chatwoot" por "CentralCom"](#3-substituição-de-textos-chatwoot-por-centralcom)
+4. [Erros do GitHub Actions](#4-erros-do-github-actions)
 
 ---
 
