@@ -54,6 +54,25 @@ Esta pasta contém documentação técnica sobre o desenvolvimento e customizaç
 
 ---
 
+### 4. [`PLANO_DESENVOLVIMENTO_FEATURES.md`](./PLANO_DESENVOLVIMENTO_FEATURES.md)
+**Planejamento detalhado de novas features**
+
+- Análise: Enterprise vs Módulo Próprio
+- Sistema de Notificações (melhorias visuais e sonoras)
+- Notificações de Marcações no WhatsApp
+- Módulo de Comunicação Interna
+- Melhorias de Interface
+- Sistema de Permissões
+- Estratégia de Desenvolvimento
+
+**Use quando:**
+- For desenvolver novas features
+- Precisar entender onde implementar algo
+- Quiser ver planejamento de features futuras
+- Precisar de referência sobre estrutura de código
+
+---
+
 ## 🎯 Como Usar Esta Documentação
 
 ### Para Desenvolvedores Novos
@@ -96,4 +115,14 @@ Esta pasta contém documentação técnica sobre o desenvolvimento e customizaç
 ---
 
 **Última atualização:** 15/01/2025
+
+---
+
+## 🚀 Desenvolvimento de Novas Features
+
+Para desenvolver novas features, consulte o [`PLANO_DESENVOLVIMENTO_FEATURES.md`](./PLANO_DESENVOLVIMENTO_FEATURES.md) que contém:
+- Planejamento detalhado de cada feature
+- Onde encontrar/modificar código
+- Estratégia de desenvolvimento
+- Ordem recomendada de implementação
 
